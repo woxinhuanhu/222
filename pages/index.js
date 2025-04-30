@@ -10,19 +10,22 @@ export default function LandValueEstimator() {
     setLoading(true);
     setResult(null);
 
-    const mockData = {
-      lotSize: "50 x 122 ft (6,100 sqft)",
-      zoning: "RS-5",
-      area: "Kitsilano",
-      landPricePerSqft: "$465/sqft",
-      newHomeSaleRange: "$1,120 – $1,260/sqft",
-      recommendation: "✅ 当前地价合理，具备开发价值。建议进一步财务模型分析。",
-    };
+    try {
+      const res = await fetch(`/api/property-info?address=${encodeURIComponent(address)}`);
+      const data = await res.json();
+      setResult(data);
+    } catch (error) {
+      console.error("Fetch error:", error);
+      setResult({
+        lotSize: "错误",
+        zoning: "错误",
+        neighbourhood: "错误",
+        landPricePerSqft: "无法获取",
+        newHomeSaleRange: "无法获取"
+      });
+    }
 
-    setTimeout(() => {
-      setResult(mockData);
-      setLoading(false);
-    }, 1000);
+    setLoading(false);
   };
 
   return (
@@ -49,10 +52,9 @@ export default function LandValueEstimator() {
           <p><strong>地址</strong>：{address}</p>
           <p><strong>土地面积</strong>：{result.lotSize}</p>
           <p><strong>分区类型</strong>：{result.zoning}</p>
-          <p><strong>所在区域</strong>：{result.area}</p>
+          <p><strong>所在区域</strong>：{result.neighbourhood}</p>
           <p><strong>土地近期均价</strong>：{result.landPricePerSqft}</p>
           <p><strong>新建房售价区间</strong>：{result.newHomeSaleRange}</p>
-          <p><strong>结论建议</strong>：{result.recommendation}</p>
         </div>
       )}
     </div>
